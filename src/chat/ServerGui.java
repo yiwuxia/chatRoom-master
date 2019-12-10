@@ -62,9 +62,12 @@ public class ServerGui extends JFrame {
 		btnStart.addActionListener((e)->{
 			 server = new Server();
 			 server.start(textArea);//running
+			 btnStart.setEnabled(false);
 		});
 		btnStop.addActionListener((e)->{
+			server=null;
 			server.running=false;
+			 btnStart.setEnabled(false);
 		});
 		btnExit.addActionListener((e)->{
 			System.exit(0);
