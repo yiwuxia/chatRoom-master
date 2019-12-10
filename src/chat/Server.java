@@ -39,7 +39,7 @@ public class Server {
 	public ServerSocket server;
 	
 	
-	public boolean running=true;
+	public  volatile boolean running=true;
 	/*
 	 * 线程池
 	 */
@@ -52,6 +52,7 @@ public class Server {
 	 */
 	public List<PrintWriter> allOut;
 	public Set<String> users=new HashSet<String>();
+	public Set<Socket> sockets=new HashSet<Socket>();
 	public Map<String, PrintWriter> userOutMap = new HashMap<String, PrintWriter>();
 
 	/**
@@ -191,6 +192,7 @@ public class Server {
 
 		public ClientHandler(Socket socket) {
 			this.socket = socket;
+			sockets.add(socket);
 			/*
 			 * 获取远程计算机的地址信息
 			 */
@@ -271,6 +273,7 @@ public class Server {
 				// 广播，通知所有客户端该用户下线了
 				sendMessageToAllClient(FileUtils.mesgBuilder(0, null, nickName));
 				userOutMap.remove(nickName);
+				users.remove(users);
 				System.out.println("[" + nickName + "]下线了.");
 				textArea.append("[" + nickName + "]下线了.");
 				textArea.append("\n");
@@ -312,6 +315,19 @@ public class Server {
 		}
 		String str=buffer.toString();
 		return str.substring(0, str.length()-1);
+	}
+
+	public void StopServer() {
+
+		running=false;
+		threadPool.shutdownNow();
+		for (Socket ss : sockets) {
+			try {
+				ss.close();
+			} catch (IOException e) {
+			}
+		}
+		
 	}
 
 }
